@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits } = require("discord.js");
+const express = require("express");
 
 const client = new Client({
   intents: [
@@ -14,7 +15,6 @@ const ROBLOX_USERNAME = "FOCUSBOT_001";
 
 // Get Roblox User ID
 async function getUserId(username) {
-
   const response = await fetch(
     "https://users.roblox.com/v1/usernames/users",
     {
@@ -31,6 +31,8 @@ async function getUserId(username) {
 
   const data = await response.json();
 
+  console.log("USER ID RAW:", data);
+
   if (!data.data || !data.data[0]) {
     return null;
   }
@@ -38,9 +40,8 @@ async function getUserId(username) {
   return data.data[0].id;
 }
 
-// Get Roblox Presence
+// Get Roblox Presence (NO COOKIE VERSION)
 async function getPresence(userId) {
-
   const response = await fetch(
     "https://presence.roblox.com/v1/presence/users",
     {
@@ -49,12 +50,18 @@ async function getPresence(userId) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        userIds: [userId]
+        userIds: [Number(userId)]
       })
     }
   );
 
   const data = await response.json();
+
+  console.log("PRESENCE RAW:", data);
+
+  if (!data.userPresences || !data.userPresences[0]) {
+    return null;
+  }
 
   return data.userPresences[0];
 }
@@ -66,7 +73,6 @@ client.once("ready", () => {
 
 // Message Event
 client.on("messageCreate", async (message) => {
-
   if (message.author.bot) return;
 
   const msg = message.content.toLowerCase();
@@ -75,9 +81,7 @@ client.on("messageCreate", async (message) => {
 
   // /checkfbgaem
   if (msg === "/checkfbgaem") {
-
     try {
-
       const userId = await getUserId(ROBLOX_USERNAME);
 
       if (!userId) {
@@ -89,13 +93,17 @@ client.on("messageCreate", async (message) => {
 
       console.log(presence);
 
+      if (!presence) {
+        message.reply("I am not playing a gamee pls wait");
+        return;
+      }
+
       // 0 = Offline
       // 1 = Online
       // 2 = In Game
       // 3 = In Studio
 
       if (presence.userPresenceType === 2) {
-
         const gameId = presence.placeId || "unknown";
 
         message.reply(
@@ -103,34 +111,26 @@ client.on("messageCreate", async (message) => {
         );
 
       } else if (presence.userPresenceType === 0) {
-
         message.reply("Zzzz...");
 
       } else {
-
         message.reply(
           "I am not playing a gamee pls wait"
         );
-
       }
 
     } catch (err) {
-
       console.error(err);
 
       message.reply(
         "something exploded 💀 check console"
       );
-
     }
-
   }
 
   // /checkstatusfb
   if (msg === "/checkstatusfb") {
-
     try {
-
       const userId = await getUserId(ROBLOX_USERNAME);
 
       if (!userId) {
@@ -140,28 +140,22 @@ client.on("messageCreate", async (message) => {
 
       const presence = await getPresence(userId);
 
-      if (presence.userPresenceType !== 0) {
-
-        message.reply(
-          "i am online pls meet me"
-        );
-
-      } else {
-
+      if (!presence) {
         message.reply("ZZZZzzz...");
+        return;
+      }
 
+      if (presence.userPresenceType !== 0) {
+        message.reply("i am online pls meet me");
+      } else {
+        message.reply("ZZZZzzz...");
       }
 
     } catch (err) {
-
       console.error(err);
 
-      message.reply(
-        "status machine exploded 💀"
-      );
-
+      message.reply("status machine exploded 💀");
     }
-
   }
 
   // Contains "bot"
@@ -170,9 +164,7 @@ client.on("messageCreate", async (message) => {
     msg !== "/checkfbgaem" &&
     msg !== "/checkstatusfb"
   ) {
-
     message.reply("don't report pls😭");
-
   }
 
   // Contains "focus"
@@ -181,11 +173,8 @@ client.on("messageCreate", async (message) => {
     msg !== "/checkfbgaem" &&
     msg !== "/checkstatusfb"
   ) {
-
     message.reply("FOCUS. 🫨Wooahh..!");
-
   }
-
 });
 
 // Error Catchers
@@ -194,7 +183,8 @@ client.on("error", console.error);
 process.on("unhandledRejection", error => {
   console.error("Unhandled promise rejection:", error);
 });
-const express = require("express");
+
+// Express server
 const app = express();
 
 app.get("/", (req, res) => {
@@ -204,5 +194,6 @@ app.get("/", (req, res) => {
 app.listen(3000, () => {
   console.log("Website running!");
 });
+
 // Login
 client.login(TOKEN);
