@@ -194,6 +194,15 @@ client.on("error", console.error);
 process.on("unhandledRejection", error => {
   console.error("Unhandled promise rejection:", error);
 });
+const express = require("express");
+const app = express();
 
+app.get("/", (req, res) => {
+  res.send("FOCUSBOT IS ONLINE 🔥");
+});
+
+app.listen(3000, () => {
+  console.log("Website running!");
+});
 // Login
 client.login(TOKEN);
