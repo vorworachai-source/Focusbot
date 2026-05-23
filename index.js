@@ -29,7 +29,7 @@ const client = new Client({
   ]
 });
 
-const TOKEN = "MTUwNzM3ODU5MDM0MDM0OTk2Mg.GhKO1U.NgHmIwh3WdwQKegcVBbJ-zs4gw-wh5sUgHy3B4";
+const TOKEN = process.env.TOKEN;
 
 const ROBLOX_USERNAME = "FOCUSBOT_001";
 
