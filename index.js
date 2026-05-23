@@ -111,7 +111,7 @@ client.on("messageCreate", async (message) => {
         );
 
       } else if (presence.userPresenceType === 0) {
-        message.reply("Zzzz...");
+        message.reply("@Hackerable:SHHH HE'S SLEEPING AND NOT READY TO WAKE UP...");
 
       } else {
         message.reply(
