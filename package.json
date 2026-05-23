@@ -1,6 +1,4 @@
-
 {
-  "express": "^4.19.2"
   "name": "focusbot",
   "version": "1.0.0",
   "main": "index.js",
@@ -9,6 +7,7 @@
   },
   "dependencies": {
     "discord.js": "^14.15.3",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "express": "^4.19.2"
   }
 }
