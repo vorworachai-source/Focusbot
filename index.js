@@ -1,5 +1,4 @@
 const { Client, GatewayIntentBits } = require("discord.js");
-const express = require("express");
 
 const client = new Client({
   intents: [
@@ -10,18 +9,36 @@ const client = new Client({
 });
 
 const TOKEN = process.env.TOKEN;
-
 const ROBLOX_USERNAME = "FOCUSBOT_001";
+
+// safer fetch wrapper
+async function safeFetch(url, options) {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0",
+      "Accept": "application/json",
+      ...options.headers
+    }
+  });
+
+  const text = await res.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.log("Raw response (not JSON):", text);
+    return null;
+  }
+}
 
 // Get Roblox User ID
 async function getUserId(username) {
-  const response = await fetch(
+  const data = await safeFetch(
     "https://users.roblox.com/v1/usernames/users",
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
         usernames: [username],
         excludeBannedUsers: false
@@ -29,38 +46,25 @@ async function getUserId(username) {
     }
   );
 
-  const data = await response.json();
-
-  console.log("USER ID RAW:", data);
-
-  if (!data.data || !data.data[0]) {
-    return null;
-  }
+  if (!data || !data.data || !data.data[0]) return null;
 
   return data.data[0].id;
 }
 
-// Get Roblox Presence (NO COOKIE VERSION)
+// Get Roblox Presence (with retry)
 async function getPresence(userId) {
-  const response = await fetch(
+  const data = await safeFetch(
     "https://presence.roblox.com/v1/presence/users",
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
-        userIds: [Number(userId)]
+        userIds: [userId]
       })
     }
   );
 
-  const data = await response.json();
-
-  console.log("PRESENCE RAW:", data);
-
-  if (!data.userPresences || !data.userPresences[0]) {
-    return null;
+  if (!data || !data.userPresences || !data.userPresences[0]) {
+    return { userPresenceType: 0 };
   }
 
   return data.userPresences[0];
@@ -85,23 +89,13 @@ client.on("messageCreate", async (message) => {
       const userId = await getUserId(ROBLOX_USERNAME);
 
       if (!userId) {
-        message.reply("could not find roblox user oh no");
+        message.reply("could not find roblox user 💀");
         return;
       }
 
       const presence = await getPresence(userId);
 
-      console.log(presence);
-
-      if (!presence) {
-        message.reply("I am not playing a gamee pls wait");
-        return;
-      }
-
-      // 0 = Offline
-      // 1 = Online
-      // 2 = In Game
-      // 3 = In Studio
+      console.log("PRESENCE:", presence);
 
       if (presence.userPresenceType === 2) {
         const gameId = presence.placeId || "unknown";
@@ -111,9 +105,11 @@ client.on("messageCreate", async (message) => {
         );
 
       } else if (presence.userPresenceType === 0) {
-        message.reply("@Hackerable:SHHH HE'S SLEEPING AND NOT READY TO WAKE UP...");
+
+        message.reply("Zzzz...");
 
       } else {
+
         message.reply(
           "I am not playing a gamee pls wait"
         );
@@ -123,7 +119,7 @@ client.on("messageCreate", async (message) => {
       console.error(err);
 
       message.reply(
-        "something exploded check my console"
+        "something exploded 💀 check console"
       );
     }
   }
@@ -134,27 +130,26 @@ client.on("messageCreate", async (message) => {
       const userId = await getUserId(ROBLOX_USERNAME);
 
       if (!userId) {
-        message.reply("could not find roblox user oh no");
+        message.reply("could not find roblox user 💀");
         return;
       }
 
       const presence = await getPresence(userId);
 
-      if (!presence) {
-        message.reply("@Hackerable:SHHH HE'S SLEEPING AND NOT READY TO WAKE UP...");
-        return;
-      }
-
       if (presence.userPresenceType !== 0) {
-        message.reply("i am online pls meet me");
+        message.reply(
+          "i am online pls meet me"
+        );
       } else {
-        message.reply("@Hackerable:SHHH HE'S SLEEPING AND NOT READY TO PLAY...");
+        message.reply("ZZZZzzz...");
       }
 
     } catch (err) {
       console.error(err);
 
-      message.reply("status machine exploded 💀");
+      message.reply(
+        "status machine exploded 💀"
+      );
     }
   }
 
@@ -185,6 +180,7 @@ process.on("unhandledRejection", error => {
 });
 
 // Express server
+const express = require("express");
 const app = express();
 
 app.get("/", (req, res) => {
