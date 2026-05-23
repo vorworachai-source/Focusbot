@@ -1,5 +1,6 @@
-npm install express
+
 {
+  npm install express
   "name": "focusbot",
   "version": "1.0.0",
   "main": "index.js",
