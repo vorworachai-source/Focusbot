@@ -85,7 +85,7 @@ client.on("messageCreate", async (message) => {
       const userId = await getUserId(ROBLOX_USERNAME);
 
       if (!userId) {
-        message.reply("could not find roblox user 💀");
+        message.reply("could not find roblox user oh no");
         return;
       }
 
@@ -123,7 +123,7 @@ client.on("messageCreate", async (message) => {
       console.error(err);
 
       message.reply(
-        "something exploded 💀 check console"
+        "something exploded check my console"
       );
     }
   }
@@ -134,21 +134,21 @@ client.on("messageCreate", async (message) => {
       const userId = await getUserId(ROBLOX_USERNAME);
 
       if (!userId) {
-        message.reply("could not find roblox user 💀");
+        message.reply("could not find roblox user oh no");
         return;
       }
 
       const presence = await getPresence(userId);
 
       if (!presence) {
-        message.reply("ZZZZzzz...");
+        message.reply("@Hackerable:SHHH HE'S SLEEPING AND NOT READY TO WAKE UP...");
         return;
       }
 
       if (presence.userPresenceType !== 0) {
         message.reply("i am online pls meet me");
       } else {
-        message.reply("ZZZZzzz...");
+        message.reply("@Hackerable:SHHH HE'S SLEEPING AND NOT READY TO PLAY...");
       }
 
     } catch (err) {
